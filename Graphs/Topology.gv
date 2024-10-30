@@ -1,0 +1,134 @@
+digraph G 
+{
+	rankdir=LR
+
+	node [style=filled, fillcolor=white];
+
+	MQTT [label="MQTT\nBroker"]
+	XMPP [label="XMPP\nBroker"]
+	MD1  [label=<Thing<sub>1</sub>>]
+	MD2  [label="...", shape=none, style=solid]
+	MD3  [label=<Thing<sub>N</sub>>]
+	XD1  [label=<Thing<sub>1</sub>>]
+	XD2  [label="...", shape=none, style=solid]
+	XD3  [label=<Thing<sub>M</sub>>]
+	XC1  [label=<Concentrator<sub>1</sub>>]
+	XC2  [label="...", shape=none, style=solid]
+	XC3  [label=<Concentrator<sub>C</sub>>]
+	CD11 [label=<Thing<sub>1,1</sub>>]
+	CD12 [label="...", shape=none, style=solid]
+	CD13 [label=<Thing<sub>1,N₁</sub>>]
+	CDC1 [label=<Thing<sub>C,1</sub>>]
+	CDC2 [label="...", shape=none, style=solid]
+	CDC3 [label=<Thing<sub>C,Nₜ</sub>>]
+	XB1  [label=<Broker<sub>1</sub>>]
+	XB2  [label="...", shape=none, style=solid]
+	XB3  [label=<Broker<sub>B</sub>>]
+
+	N1   [label="", width=0.2, height=0.2]
+	N2   [label="", width=0.2, height=0.2]
+	N3   [label="", width=0.2, height=0.2]
+	N4   [label="", width=0.2, height=0.2]
+	N5   [label="", width=0.2, height=0.2]
+	N6   [label="", width=0.2, height=0.2]
+
+	M1   [label="", width=0.2, height=0.2]
+	M2   [label="", width=0.2, height=0.2]
+	M3   [label="", width=0.2, height=0.2]
+	M4   [label="", width=0.2, height=0.2]
+	M5   [label="", width=0.2, height=0.2]
+	M6   [label="", width=0.2, height=0.2]
+
+	subgraph cluster_0
+	{
+		style=filled;
+		color=lightgrey;
+		node [style=filled, color=white];
+		label = <<B><U>Inter-network</U></B>, or <B><U>Enterprise Network</U></B>>;
+		margin=30;
+
+		subgraph cluster_1
+		{
+			style=filled;
+			color="#DCDCDC";
+			label = <<B><U>MQTT Domain</U></B>>;
+			margin=30;
+
+			MD1 -> MQTT [dir=both, label=Topic]
+			MD2 -> MQTT [style=invis]
+			MD3 -> MQTT [dir=both, label=Topic]
+		}
+	}
+
+	MQTT -> Bridge [dir=both, label=<<B>MQTT</B><BR/>PUBLISH<BR/>SUBSCRIBE>]
+	Bridge -> XMPP [dir=both, label=<<B>XMPP</B><BR/>message<BR/>iq<BR/>presence>]
+
+	subgraph cluster_2
+	{
+		style=filled;
+		color=lightgrey;
+		node [style=filled, color=white];
+		label = <<B><U>Inter-network</U></B>>;
+		margin=30;
+
+		subgraph cluster_3
+		{
+			style=filled;
+			color="#DCDCDC";
+			node [style=filled, color=white];
+			label = <<B><U>XMPP Domain</U></B>>;
+			margin=30;
+
+			XMPP -> XD1 [dir=both, label=JID]
+			XMPP -> XD2 [style=invis]
+			XMPP -> XD3 [dir=both, label=JID]
+			XMPP -> XC1 [dir=both, label=JID]
+			XMPP -> XC2 [style=invis]
+			XMPP -> XC3 [dir=both, label=JID]
+			XC1 -> CD11 [dir=both, label="Node ID\nSource ID\nPartition"]
+			XC1 -> CD12 [style=invis]
+			XC1 -> CD13 [dir=both, label="Node ID\nSource ID\nPartition"]
+			XC3 -> CDC1 [dir=both, label="Node ID\nSource ID\nPartition"]
+			XC3 -> CDC2 [style=invis]
+			XC3 -> CDC3 [dir=both, label="Node ID\nSource ID\nPartition"]
+		}
+
+		subgraph cluster_4
+		{
+			style=filled;
+			color="#DCDCDC";
+			node [style=filled, color=white];
+			label = <<B><U>Federated Domain</U></B>>;
+			margin=30;
+
+			XMPP -> XB1 [dir=both, label=Domain]
+
+			XB1 -> N1
+			XB1 -> N2
+			XB1 -> N3
+			XB1 -> N4
+			XB1 -> N5
+			XB1 -> N6
+		}
+
+		XMPP -> XB2 [style=invis]
+
+		subgraph cluster_5
+		{
+			style=filled;
+			color="#DCDCDC";
+			node [style=filled, color=white];
+			label = <<B><U>Federated Domain</U></B>>;
+			margin=30;
+
+			XMPP -> XB3 [dir=both, label=Domain]
+
+			XB3 -> M1
+			XB3 -> M2
+			XB3 -> M3
+			XB3 -> M4
+			XB3 -> M5
+			XB3 -> M6
+		}
+	}
+}
