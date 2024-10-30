@@ -44,7 +44,7 @@ digraph G
 		style=filled;
 		color=lightgrey;
 		node [style=filled, color=white];
-		label = <<B><U>Inter-network</U></B>, or <B><U>Enterprise Network</U></B>>;
+		label = <<B><U>Intra-network</U></B>, or <B><U>Enterprise Network</U></B>>;
 		margin=30;
 
 		subgraph cluster_1

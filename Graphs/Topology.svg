@@ -11,9 +11,9 @@
 <polygon fill="#ffffff" stroke="none" points="-4,4 -4,-1132 1209.26,-1132 1209.26,4 -4,4"/>
 <g id="clust1" class="cluster"><title>cluster_0</title>
 <polygon fill="lightgrey" stroke="lightgrey" points="8,-170 8,-480 355.303,-480 355.303,-170 8,-170"/>
-<text text-anchor="start" x="65.1517" y="-465.8" font-family="Times New Roman,serif" font-weight="bold" text-decoration="underline" font-size="14.00">Inter&#45;network</text>
-<text text-anchor="start" x="151.152" y="-465.8" font-family="Times New Roman,serif" font-size="14.00">, or </text>
-<text text-anchor="start" x="175.152" y="-465.8" font-family="Times New Roman,serif" font-weight="bold" text-decoration="underline" font-size="14.00">Enterprise Network</text>
+<text text-anchor="start" x="64.6517" y="-465.8" font-family="Times New Roman,serif" font-weight="bold" text-decoration="underline" font-size="14.00">Intra&#45;network</text>
+<text text-anchor="start" x="151.652" y="-465.8" font-family="Times New Roman,serif" font-size="14.00">, or </text>
+<text text-anchor="start" x="175.652" y="-465.8" font-family="Times New Roman,serif" font-weight="bold" text-decoration="underline" font-size="14.00">Enterprise Network</text>
 </g>
 <g id="clust2" class="cluster"><title>cluster_1</title>
 <polygon fill="#dcdcdc" stroke="#dcdcdc" points="38,-200 38,-427 325.303,-427 325.303,-200 38,-200"/>
