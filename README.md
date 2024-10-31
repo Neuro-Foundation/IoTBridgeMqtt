@@ -43,3 +43,35 @@ to input the value on the console.
 | `REGISTRY_ROOM`			| String  | Room where the bridge is installed.                                                                                   |
 | `REGISTRY_NAME`			| String  | Name associated with bridge.                                                                                          |
 | `REGISTRY_LOCATION`		| Boolean | If location has been completed. (This means, any location-specific environment variables not provided, will be interpreted as intensionally left blank, and user will not be prompted to input values for them. |
+
+Claiming ownership of bridge
+-------------------------------
+
+Once the bridge has been configured, it will generate an `iotdisco` URI, and save it to its
+programd data folder. It will also create a file with extension `.url`, containing a shortcut
+with the `iotdisco` URI inside. A `.png` file with a QR code will also be generated. All three
+files contain information about the bridge, and allows the owner to claim ownership of it.
+This can be done by using the [Neuro-Access App](https://github.com/Trust-Anchor-Group/NeuroAccessMaui).
+This app is also downloadable for [Android](https://play.google.com/store/apps/details?id=com.tag.NeuroAccess) 
+and [iOS](https://apps.apple.com/app/neuro-access/id6446863270). You scan the QR code (or
+enter it manually), and claim the device. Once the device is claimed by you, you will receive
+notifications when someone wants to access the deice. They will only be able to access it
+with the owner's permission. For more information, see:
+
+* [Registration, discovery & ownership process](https://neuro-foundation.io/Discovery.md)
+* [Decision support for deviceos](https://neuro-foundation.io/DecisionSupport.md)
+* [Provisioning for owners](https://neuro-foundation.io/Provisioning.md)
+
+
+Configuring the bridge
+-------------------------
+
+The bridge can be configured in detail by a client that implements the [concentrator interface](https://neuro-foundation.io/Concentrator.md).
+Concentrators consist of *data sources*, each containing tree structures of *nodes*. Nodes may be partitioned into
+*partitions*, which permits the nesting of subsystems seamlessly into container systems. Each node can be
+of different types, and have different properties and underlying functionality. They can each implement then
+[sensor interface](https://neuro-foundation.io/SensorData.md) and [actuator interface](https://neuro-foundation.io/ControlParameters.md).
+
+You can use the [Simple IoT Client](https://github.com/Neuro-Foundation/IoTGateway/tree/master/Clients/Waher.Client.WPF) in the
+[IoTGateway](https://github.com/Neuro-Foundation/IoTGateway) repository to configure concentrators and their nodes in detail.
+An initial setup is done using the initial configuration of the bridge.
