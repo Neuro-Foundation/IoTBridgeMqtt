@@ -81,6 +81,7 @@ internal class Program
 				typeof(ScriptNode).GetTypeInfo().Assembly,
 				typeof(VirtualNode).GetTypeInfo().Assembly,
 				typeof(XmppBrokerNode).GetTypeInfo().Assembly,
+				typeof(Hashes).GetTypeInfo().Assembly,
 				typeof(Program).GetTypeInfo().Assembly);
 
 			#endregion
