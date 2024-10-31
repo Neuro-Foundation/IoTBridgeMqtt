@@ -9,7 +9,42 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Waher.Content.QR" Version="2.1.0" />
+    <PackageReference Include="Waher.Events" Version="1.2.1" />
+    <PackageReference Include="Waher.Events.Console" Version="1.2.0" />
+    <PackageReference Include="Waher.Events.XMPP" Version="1.2.6" />
+    <PackageReference Include="Waher.Networking" Version="2.3.0" />
+    <PackageReference Include="Waher.Networking.XMPP" Version="3.2.1" />
+    <PackageReference Include="Waher.Networking.XMPP.Chat" Version="2.0.9" />
+    <PackageReference Include="Waher.Networking.XMPP.Concentrator" Version="3.2.2" />
+    <PackageReference Include="Waher.Networking.XMPP.Contracts" Version="3.2.4" />
+    <PackageReference Include="Waher.Networking.XMPP.Control" Version="3.0.1" />
+    <PackageReference Include="Waher.Networking.XMPP.P2P" Version="3.1.2" />
+    <PackageReference Include="Waher.Networking.XMPP.PEP" Version="2.0.6" />
+    <PackageReference Include="Waher.Networking.XMPP.Provisioning" Version="3.0.1" />
+    <PackageReference Include="Waher.Networking.XMPP.PubSub" Version="2.0.8" />
+    <PackageReference Include="Waher.Networking.XMPP.Sensor" Version="3.0.2" />
+    <PackageReference Include="Waher.Persistence" Version="1.12.0" />
+    <PackageReference Include="Waher.Persistence.Files" Version="1.12.0" />
+    <PackageReference Include="Waher.Runtime.Settings" Version="1.1.2" />
+    <PackageReference Include="Waher.Script" Version="2.8.0" />
+    <PackageReference Include="Waher.Things" Version="2.0.3" />
+    <PackageReference Include="Waher.Things.Ieee1451" Version="1.0.1" />
+    <PackageReference Include="Waher.Things.Ip" Version="1.2.7" />
+    <PackageReference Include="Waher.Things.Metering" Version="1.2.8" />
+    <PackageReference Include="Waher.Things.Mqtt" Version="1.5.1" />
+    <PackageReference Include="Waher.Things.Script" Version="1.0.4" />
+    <PackageReference Include="Waher.Things.Virtual" Version="1.0.4" />
+    <PackageReference Include="Waher.Things.Xmpp" Version="1.2.0" />
   </ItemGroup>
 
 </Project>
