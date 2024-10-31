@@ -15,4 +15,6 @@ for XMPP.
 
 The code is written using .NET Standard, and compiled to a .NET Core console application
 that can be run on most operating systems. Basic configuration is performed using the
-console interface during the first execution, and persisted.
+console interface during the first execution, and persisted. You can also provide the
+corresponding configuration using environment variables, making it possible to run the
+bridge as a container.

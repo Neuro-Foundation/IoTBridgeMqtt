@@ -12,9 +12,22 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Graphs", "Graphs", "{F4852F35-0AB5-47E0-8A9C-6EE08AE9894D}"
 	ProjectSection(SolutionItems) = preProject
 		Graphs\Topology.gv = Graphs\Topology.gv
+		Graphs\Topology.svg = Graphs\Topology.svg
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleBridge", "ConsoleBridge\ConsoleBridge.csproj", "{F9AE74D7-1243-48B2-948F-37A9705F5CF5}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9AE74D7-1243-48B2-948F-37A9705F5CF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9AE74D7-1243-48B2-948F-37A9705F5CF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9AE74D7-1243-48B2-948F-37A9705F5CF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9AE74D7-1243-48B2-948F-37A9705F5CF5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

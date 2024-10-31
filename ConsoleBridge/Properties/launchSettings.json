@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ConsoleBridge": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
