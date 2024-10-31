@@ -72,9 +72,10 @@ Concentrators consist of *data sources*, each containing tree structures of *nod
 of different types, and have different properties and underlying functionality. They can each implement then
 [sensor interface](https://neuro-foundation.io/SensorData.md) and [actuator interface](https://neuro-foundation.io/ControlParameters.md).
 
-You can use the [Simple IoT Client](https://github.com/Neuro-Foundation/IoTGateway/tree/master/Clients/Waher.Client.WPF) in the
-[IoTGateway](https://github.com/Neuro-Foundation/IoTGateway) repository to configure concentrators and their nodes in detail.
-An initial setup is done using the initial configuration of the bridge.
+You can use the [Simple IoT Client](https://waher.se/IoTGateway/SimpleIoTClient.md) to configure concentrators and their nodes in detail.
+An initial setup is done using the initial configuration of the bridge. The client is also available in the
+[IoTGateway](https://github.com/Neuro-Foundation/IoTGateway) repository, in the
+[Clients folder](https://github.com/Neuro-Foundation/IoTGateway/tree/master/Clients/Waher.Client.WPF).
 
 Node Types
 -------------
