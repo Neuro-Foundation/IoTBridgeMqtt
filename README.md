@@ -75,3 +75,36 @@ of different types, and have different properties and underlying functionality. 
 You can use the [Simple IoT Client](https://github.com/Neuro-Foundation/IoTGateway/tree/master/Clients/Waher.Client.WPF) in the
 [IoTGateway](https://github.com/Neuro-Foundation/IoTGateway) repository to configure concentrators and their nodes in detail.
 An initial setup is done using the initial configuration of the bridge.
+
+Node Types
+-------------
+
+The bridge includes several different node types that can be used to configure its operation:
+
+*	The `MQTT Broker` maintains a connection to an MQTT Broker, and allows the bridge to subcribe to
+	content published on topics, as well as publish content to topics on the broker. The topic
+	hierarchy will be modelled using `MQTT Topic` nodes, or derivatives. Common data types are
+	recognized and parsed. You can read each topic individually, or a parent topic, and receive
+	information from all child topics, as field values.
+
+*	The `XMPP Broker` maintains a connection to an XMPP Broker. It allows the bridge to connect
+	to other entities on the federated network and communicate with them. It supports communication
+	with remote standalone sensors and actuators, as well as remote concentrators embedding devices
+	into data sources and nodes. Such concentrators can be bridges to other protocols and networks.
+	
+	**Note**: The bridge has a client-to-server connection by default, setup during initial
+	configuration. Through this connection, the bridge acts as a concentrator. Through the use of
+	`XMPP Broker` nodes you can setup additional XMPP connections to other brokers. In these cases
+	the bridge will only act as a client, to connect to remove devices for the purposes of interacting
+	with them.
+
+*	`IEEE 1451` nodes are derivatives of MQTT nodes, and implement support for the `IEEE 1451` family
+	of standards, of which `IEEE 1451.1.6` manages communication over MQTT.
+
+*	`IP Host` nodes allow you to monitor network hosts accessible from the bridge.
+
+*	`Script` nodes allow you to create nodes with custom script logic. They can be used to interface
+	bespoke devices in the network accessible from the bridge, for example.
+
+*	`Virtual` nodes are placeholders where external logic (or script logic) can aggregate information
+	in a way that makes them accessible by others in the federated network.
