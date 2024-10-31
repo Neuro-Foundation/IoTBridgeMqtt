@@ -1,10 +1,13 @@
-﻿using System.Reflection;
+﻿using SkiaSharp;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 using Waher.Content;
 using Waher.Content.Html.Elements;
 using Waher.Content.Markdown;
 using Waher.Content.QR;
+using Waher.Content.QR.Encoding;
 using Waher.Content.Xml;
 using Waher.Events;
 using Waher.Events.Console;
@@ -14,6 +17,7 @@ using Waher.Networking.XMPP.Chat;
 using Waher.Networking.XMPP.Control;
 using Waher.Networking.XMPP.Provisioning;
 using Waher.Networking.XMPP.Sensor;
+using Waher.Networking.XMPP.ServiceDiscovery;
 using Waher.Persistence;
 using Waher.Persistence.Files;
 using Waher.Persistence.Serialization;
@@ -52,6 +56,7 @@ internal class Program
 			Log.Informational("Starting application.");
 
 			Types.Initialize(
+				typeof(Database).GetTypeInfo().Assembly,
 				typeof(FilesProvider).GetTypeInfo().Assembly,
 				typeof(ObjectSerializer).GetTypeInfo().Assembly,    // Waher.Persistence.Serialization was broken out of Waher.Persistence.FilesLW after the publishing of the MIoT book.
 				typeof(RuntimeSettings).GetTypeInfo().Assembly,
@@ -189,7 +194,7 @@ internal class Program
 				{
 					using RandomNumberGenerator Rnd = RandomNumberGenerator.Create();
 					byte[] Bin = new byte[32];  // 256 random bits
-					
+
 					Rnd.GetBytes(Bin);
 					PasswordHash = Hashes.BinaryToString(Bin);
 				}
@@ -228,7 +233,107 @@ internal class Program
 
 			#endregion
 
-			while (true)
+			#region Configuring Decision Support & Provisioning
+
+			thingRegistryJid = await RuntimeSettings.GetAsync("ThingRegistry.JID", string.Empty);
+			provisioningJid = await RuntimeSettings.GetAsync("ProvisioningServer.JID", thingRegistryJid);
+			ownerJid = await RuntimeSettings.GetAsync("ThingRegistry.Owner", string.Empty);
+
+			if (string.IsNullOrEmpty(thingRegistryJid) || string.IsNullOrEmpty(provisioningJid))
+			{
+				Log.Informational("Searching for Thing Registry and Provisioning Server.");
+
+				ServiceItemsDiscoveryEventArgs e = await xmppClient.ServiceItemsDiscoveryAsync(xmppClient.Domain);
+				foreach (Item Item in e.Items)
+				{
+					ServiceDiscoveryEventArgs e2 = await xmppClient.ServiceDiscoveryAsync(Item.JID);
+
+					try
+					{
+						if (e2.HasAnyFeature(ProvisioningClient.NamespacesProvisioningDevice))
+						{
+							await RuntimeSettings.SetAsync("ProvisioningServer.JID", provisioningJid = Item.JID);
+							Log.Informational("Provisioning server found.", provisioningJid);
+						}
+
+						if (e2.HasAnyFeature(ThingRegistryClient.NamespacesDiscovery))
+						{
+							await RuntimeSettings.SetAsync("ThingRegistry.JID", thingRegistryJid = Item.JID);
+							Log.Informational("Thing registry found.", thingRegistryJid);
+						}
+					}
+					catch (Exception ex)
+					{
+						Log.Exception(ex);
+					}
+				}
+			}
+
+			if (!string.IsNullOrEmpty(provisioningJid))
+			{
+				provisioningClient = new ProvisioningClient(xmppClient, provisioningJid, ownerJid);
+
+				provisioningClient.CacheCleared += (sender, e) =>
+				{
+					Log.Informational("Rule cache cleared.");
+				};
+			}
+
+			if (!string.IsNullOrEmpty(thingRegistryJid))
+			{
+				registryClient = new ThingRegistryClient(xmppClient, thingRegistryJid);
+
+				registryClient.Claimed += async (sender, e) =>
+				{
+					try
+					{
+						Log.Notice("Owner claimed device.", string.Empty, e.JID);
+
+						await RuntimeSettings.SetAsync("ThingRegistry.Owner", ownerJid = e.JID);
+						await RuntimeSettings.SetAsync("ThingRegistry.Key", string.Empty);
+
+						Reregister();
+					}
+					catch (Exception ex)
+					{
+						Log.Exception(ex);
+					}
+				};
+
+				registryClient.Disowned += async (sender, e) =>
+				{
+					try
+					{
+						Log.Notice("Owner disowned device.", string.Empty, ownerJid);
+
+						await RuntimeSettings.SetAsync("ThingRegistry.Owner", ownerJid = string.Empty);
+
+						Reregister();
+					}
+					catch (Exception ex)
+					{
+						Log.Exception(ex);
+					}
+				};
+			}
+
+			await RegisterDevice();
+
+			#endregion
+
+			//SetupSensorServer();
+			//SetupControlServer();
+			//SetupChatServer();
+
+			bool Running = true;
+
+			Console.CancelKeyPress += (_, e) =>
+			{
+				Running = false;
+				e.Cancel = true;
+			};
+
+			while (Running)
 				await Task.Delay(1000);
 		}
 		catch (Exception ex)
@@ -381,6 +486,271 @@ internal class Program
 		Xml.Append("</vCard>");
 
 		return Xml.ToString();
+	}
+
+	#endregion
+
+	#region Device Registration
+
+	private static async Task RegisterDevice()
+	{
+		string Country = await EnvironmentSettings.GetAsync("REGISTRY_COUNTRY", "ThingRegistry.Country", string.Empty);
+		string Region = await EnvironmentSettings.GetAsync("REGISTRY_REGION", "ThingRegistry.Region", string.Empty);
+		string City = await EnvironmentSettings.GetAsync("REGISTRY_CITY", "ThingRegistry.City", string.Empty);
+		string Area = await EnvironmentSettings.GetAsync("REGISTRY_AREA", "ThingRegistry.Area", string.Empty);
+		string Street = await EnvironmentSettings.GetAsync("REGISTRY_SRTEET", "ThingRegistry.Street", string.Empty);
+		string StreetNr = await EnvironmentSettings.GetAsync("REGISTRY_STREETNR", "ThingRegistry.StreetNr", string.Empty);
+		string Building = await EnvironmentSettings.GetAsync("REGISTRY_BUILDING", "ThingRegistry.Building", string.Empty);
+		string Apartment = await EnvironmentSettings.GetAsync("REGISTRY_APARTMENT", "ThingRegistry.Apartment", string.Empty);
+		string Room = await EnvironmentSettings.GetAsync("REGISTRY_ROOM", "ThingRegistry.Room", string.Empty);
+		string Name = await EnvironmentSettings.GetAsync("REGISTRY_NAME", "ThingRegistry.Name", string.Empty);
+		bool HasLocation = await EnvironmentSettings.GetAsync("REGISTRY_LOCATION", "ThingRegistry.Location", false);
+		bool Updated = false;
+
+		while (true)
+		{
+			if (HasLocation)
+			{
+				try
+				{
+					List<MetaDataTag> MetaInfo =
+						[
+							new MetaDataStringTag("CLASS", "Bridge"),
+							new MetaDataStringTag("TYPE", "MQTT<->XMPP"),
+							new MetaDataStringTag("MAN", "neuro-foundation.io"),
+							new MetaDataStringTag("MODEL", "IoTBridgeMqtt"),
+							new MetaDataStringTag("PURL", "https://github.com/Neuro-Foundation/IoTBridgeMqtt"),
+							new MetaDataStringTag("SN", deviceId),
+							new MetaDataNumericTag("V", 1.0)
+						];
+
+					if (!string.IsNullOrEmpty(Country))
+						MetaInfo.Add(new MetaDataStringTag("COUNTRY", Country));
+
+					if (!string.IsNullOrEmpty(Region))
+						MetaInfo.Add(new MetaDataStringTag("REGION", Region));
+
+					if (!string.IsNullOrEmpty(City))
+						MetaInfo.Add(new MetaDataStringTag("CITY", City));
+
+					if (!string.IsNullOrEmpty(Area))
+						MetaInfo.Add(new MetaDataStringTag("AREA", Area));
+
+					if (!string.IsNullOrEmpty(Street))
+						MetaInfo.Add(new MetaDataStringTag("STREET", Street));
+
+					if (!string.IsNullOrEmpty(StreetNr))
+						MetaInfo.Add(new MetaDataStringTag("STREETNR", StreetNr));
+
+					if (!string.IsNullOrEmpty(Building))
+						MetaInfo.Add(new MetaDataStringTag("BLD", Building));
+
+					if (!string.IsNullOrEmpty(Apartment))
+						MetaInfo.Add(new MetaDataStringTag("APT", Apartment));
+
+					if (!string.IsNullOrEmpty(Room))
+						MetaInfo.Add(new MetaDataStringTag("ROOM", Room));
+
+					if (!string.IsNullOrEmpty(Name))
+						MetaInfo.Add(new MetaDataStringTag("NAME", Name));
+
+					if (string.IsNullOrEmpty(ownerJid))
+						await RegisterDevice([.. MetaInfo]);
+					else
+						await UpdateRegistration([.. MetaInfo], ownerJid);
+
+					if (Updated)
+					{
+						await RuntimeSettings.SetAsync("ThingRegistry.Country", Country);
+						await RuntimeSettings.SetAsync("ThingRegistry.Region", Region);
+						await RuntimeSettings.SetAsync("ThingRegistry.City", City);
+						await RuntimeSettings.SetAsync("ThingRegistry.Area", Area);
+						await RuntimeSettings.SetAsync("ThingRegistry.Street", Street);
+						await RuntimeSettings.SetAsync("ThingRegistry.StreetNr", StreetNr);
+						await RuntimeSettings.SetAsync("ThingRegistry.Building", Building);
+						await RuntimeSettings.SetAsync("ThingRegistry.Apartment", Apartment);
+						await RuntimeSettings.SetAsync("ThingRegistry.Room", Room);
+						await RuntimeSettings.SetAsync("ThingRegistry.Name", Name);
+					}
+					break;
+				}
+				catch (Exception ex)
+				{
+					Log.Exception(ex);
+				}
+			}
+
+			Country = InputString("Country", Country);
+			Region = InputString("Region", Region);
+			City = InputString("City", City);
+			Area = InputString("Area", Area);
+			Street = InputString("Street", Street);
+			StreetNr = InputString("StreetNr", StreetNr);
+			Building = InputString("Building", Building);
+			Apartment = InputString("Apartment", Apartment);
+			Room = InputString("Room", Room);
+			Name = InputString("Name", Name);
+			Updated = true;
+			HasLocation = true;
+		}
+	}
+
+	private static async Task RegisterDevice(MetaDataTag[] MetaInfo)
+	{
+		Log.Informational("Registering device.");
+
+		string Key = await RuntimeSettings.GetAsync("ThingRegistry.Key", string.Empty);
+		if (string.IsNullOrEmpty(Key))
+		{
+			using RandomNumberGenerator Rnd = RandomNumberGenerator.Create();
+			byte[] Bin = new byte[32];
+
+			Rnd.GetBytes(Bin);
+
+			Key = Hashes.BinaryToString(Bin);
+			await RuntimeSettings.SetAsync("ThingRegistry.Key", Key);
+		}
+
+		int c = MetaInfo.Length;
+		MetaDataTag[] MetaInfo2 = new MetaDataTag[c + 1];
+		Array.Copy(MetaInfo, 0, MetaInfo2, 0, c);
+		MetaInfo2[c] = new MetaDataStringTag("KEY", Key);
+
+		registryClient?.RegisterThing(false, MetaInfo2, async (sender, e) =>
+		{
+			try
+			{
+				if (e.Ok)
+				{
+					await RuntimeSettings.SetAsync("ThingRegistry.Location", true);
+					await RuntimeSettings.SetAsync("ThingRegistry.Owner", ownerJid = e.OwnerJid);
+
+					if (string.IsNullOrEmpty(e.OwnerJid))
+						Log.Informational("Registration successful.");
+					else
+					{
+						await RuntimeSettings.SetAsync("ThingRegistry.Key", string.Empty);
+						Log.Informational("Registration updated. Device has an owner.",
+							new KeyValuePair<string, object>("Owner", e.OwnerJid));
+
+						MetaInfo2[c] = new MetaDataStringTag("JID", xmppClient?.BareJID);
+					}
+
+					if (xmppClient is not null)
+						await GenerateIoTDiscoUri(MetaInfo2, xmppClient.Host);
+				}
+				else
+				{
+					Log.Error("Registration failed.");
+					await RegisterDevice();
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.Exception(ex);
+			}
+		}, null);
+	}
+
+	private static async Task GenerateIoTDiscoUri(MetaDataTag[] MetaInfo, string Host)
+	{
+		if (registryClient is null || qrEncoder is null)
+			return;
+
+		string FilePath = Path.Combine(Environment.CurrentDirectory, "Bridge.iotdisco");
+		string DiscoUri = registryClient.EncodeAsIoTDiscoURI(MetaInfo);
+		QrMatrix M = qrEncoder.GenerateMatrix(CorrectionLevel.L, DiscoUri);
+		string QrCode = M.ToQuarterBlockText();
+
+		Log.Informational(QrCode);
+		File.WriteAllText(FilePath, DiscoUri);
+
+		StringBuilder sb = new();
+
+		sb.AppendLine("[InternetShortcut]");
+		sb.Append("URL=https://");
+		sb.Append(Host);
+		sb.Append("/QR/");
+		sb.Append(HttpUtility.UrlEncode(DiscoUri));
+		sb.AppendLine();
+
+		string ShortcutFileName = FilePath + ".url";
+		File.WriteAllText(ShortcutFileName, sb.ToString());
+
+		byte[] Rgba = M.ToRGBA(400, 400);
+
+		using SKData Data = SKData.Create(new MemoryStream(Rgba));
+		using SKImage Bitmap = SKImage.FromPixels(new SKImageInfo(400, 400, SKColorType.Rgba8888), Data, 400 * 4);
+		using SKData Data2 = Bitmap.Encode(SKEncodedImageFormat.Png, 100);
+		byte[] Png = Data2.ToArray();
+
+		string PngFileName = FilePath + ".png";
+		await File.WriteAllBytesAsync(PngFileName, Png);
+
+		Log.Informational("IoTDisco URI saved.",
+			new KeyValuePair<string, object>("URI Filename", FilePath),
+			new KeyValuePair<string, object>("Shortcut Filename", ShortcutFileName),
+			new KeyValuePair<string, object>("QR Code Filename", PngFileName));
+	}
+
+	private static async Task UpdateRegistration(MetaDataTag[] MetaInfo, string OwnerJid)
+	{
+		if (string.IsNullOrEmpty(OwnerJid))
+			await RegisterDevice(MetaInfo);
+		else
+		{
+			Log.Informational("Updating registration of device.",
+				new KeyValuePair<string, object>("Owner", OwnerJid));
+
+			registryClient?.UpdateThing(MetaInfo, async (sender, e) =>
+			{
+				try
+				{
+					if (e.Disowned)
+					{
+						await RuntimeSettings.SetAsync("ThingRegistry.Owner", ownerJid = string.Empty);
+						await RegisterDevice(MetaInfo);
+					}
+					else if (e.Ok)
+					{
+						Log.Informational("Registration update successful.");
+
+						int c = MetaInfo.Length;
+						MetaDataTag[] MetaInfo2 = new MetaDataTag[c + 1];
+						Array.Copy(MetaInfo, 0, MetaInfo2, 0, c);
+						MetaInfo2[c] = new MetaDataStringTag("JID", xmppClient?.BareJID);
+
+						if (xmppClient is not null)
+							await GenerateIoTDiscoUri(MetaInfo2, xmppClient.Host);
+					}
+					else
+					{
+						Log.Error("Registration update failed.");
+						await RegisterDevice(MetaInfo);
+					}
+				}
+				catch (Exception ex)
+				{
+					Log.Exception(ex);
+				}
+			}, null);
+		}
+	}
+
+	private static void Reregister()
+	{
+		Task _ = Task.Run(async () =>
+		{
+			try
+			{
+				await Task.Delay(5000);
+				await RegisterDevice();
+			}
+			catch (Exception ex)
+			{
+				Log.Exception(ex);
+			}
+		});
 	}
 
 	#endregion
