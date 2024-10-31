@@ -14,9 +14,8 @@ using Waher.Events.Console;
 using Waher.Networking.XMPP;
 using Waher.Networking.XMPP.BitsOfBinary;
 using Waher.Networking.XMPP.Chat;
-using Waher.Networking.XMPP.Control;
+using Waher.Networking.XMPP.Concentrator;
 using Waher.Networking.XMPP.Provisioning;
-using Waher.Networking.XMPP.Sensor;
 using Waher.Networking.XMPP.ServiceDiscovery;
 using Waher.Persistence;
 using Waher.Persistence.Files;
@@ -25,7 +24,15 @@ using Waher.Runtime.Inventory;
 using Waher.Runtime.Settings;
 using Waher.Script;
 using Waher.Script.Graphs;
+using Waher.Script.Model;
 using Waher.Security;
+using Waher.Things;
+using Waher.Things.Ieee1451;
+using Waher.Things.Ip;
+using Waher.Things.Metering;
+using Waher.Things.Mqtt.Model;
+using Waher.Things.Virtual;
+using Waher.Things.Xmpp;
 
 internal class Program
 {
@@ -37,8 +44,7 @@ internal class Program
 	private static string? thingRegistryJid = string.Empty;
 	private static string? provisioningJid = string.Empty;
 	private static string? ownerJid = string.Empty;
-	private static SensorServer? sensorServer = null;
-	private static ControlServer? controlServer = null;
+	private static ConcentratorServer? concentratorServer = null;
 	private static ThingRegistryClient? registryClient = null;
 	private static ProvisioningClient? provisioningClient = null;
 	private static BobClient? bobClient = null;
@@ -67,6 +73,14 @@ internal class Program
 				typeof(Expression).GetTypeInfo().Assembly,
 				typeof(Graph).GetTypeInfo().Assembly,
 				typeof(Select).GetTypeInfo().Assembly,
+				typeof(ThingReference).GetTypeInfo().Assembly,
+				typeof(Ieee1451Parser).GetTypeInfo().Assembly,
+				typeof(IpHost).GetTypeInfo().Assembly,
+				typeof(MeteringTopology).GetTypeInfo().Assembly,
+				typeof(MqttBroker).GetTypeInfo().Assembly,
+				typeof(ScriptNode).GetTypeInfo().Assembly,
+				typeof(VirtualNode).GetTypeInfo().Assembly,
+				typeof(XmppBrokerNode).GetTypeInfo().Assembly,
 				typeof(Program).GetTypeInfo().Assembly);
 
 			#endregion
@@ -321,9 +335,8 @@ internal class Program
 
 			#endregion
 
-			//SetupSensorServer();
-			//SetupControlServer();
-			//SetupChatServer();
+			SetupConcentratorServer();
+			SetupChatServer();
 
 			bool Running = true;
 
@@ -346,7 +359,7 @@ internal class Program
 			//SafeDispose(ref pepClient);
 			SafeDispose(ref chatServer);
 			SafeDispose(ref bobClient);
-			SafeDispose(ref sensorServer);
+			SafeDispose(ref concentratorServer);
 			SafeDispose(ref xmppClient);
 
 			Log.Terminate();
@@ -751,6 +764,29 @@ internal class Program
 				Log.Exception(ex);
 			}
 		});
+	}
+
+	#endregion
+
+	#region Concentrator
+
+	private static void SetupConcentratorServer()
+	{
+		SafeDispose(ref concentratorServer);
+
+		concentratorServer = new ConcentratorServer(xmppClient, registryClient, provisioningClient, new MeteringTopology());
+	}
+
+	#endregion
+
+	#region Chat Server
+
+	private static void SetupChatServer()
+	{
+		SafeDispose(ref chatServer);
+
+		bobClient ??= new BobClient(xmppClient, Path.Combine(Path.GetTempPath(), "BitsOfBinary"));
+		chatServer = new ChatServer(xmppClient, bobClient, concentratorServer);
 	}
 
 	#endregion
