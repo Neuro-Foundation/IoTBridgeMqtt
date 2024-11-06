@@ -11,6 +11,7 @@ using Waher.Content.QR.Encoding;
 using Waher.Content.Xml;
 using Waher.Events;
 using Waher.Events.Console;
+using Waher.Networking.MQTT;
 using Waher.Networking.XMPP;
 using Waher.Networking.XMPP.BitsOfBinary;
 using Waher.Networking.XMPP.Chat;
@@ -30,6 +31,7 @@ using Waher.Things;
 using Waher.Things.Ieee1451;
 using Waher.Things.Ip;
 using Waher.Things.Metering;
+using Waher.Things.Mqtt;
 using Waher.Things.Mqtt.Model;
 using Waher.Things.Virtual;
 using Waher.Things.Xmpp;
@@ -50,7 +52,7 @@ internal class Program
 	private static BobClient? bobClient = null;
 	private static ChatServer? chatServer = null;
 
-	private static async Task Main(string[] args)
+	private static async Task Main()
 	{
 		try
 		{
@@ -113,27 +115,27 @@ internal class Program
 
 			#region XMPP Connection
 
-			string Host = await EnvironmentSettings.GetAsync("XMPP_HOST", "XmppHost", "lab.tagroot.io");
-			int Port = (int)await EnvironmentSettings.GetAsync("XMPP_PORT", "XmppPort", 5222);
-			string UserName = await EnvironmentSettings.GetAsync("XMPP_USERNAME", "XmppUserName", string.Empty);
-			string PasswordHash = await EnvironmentSettings.GetAsync("XMPP_PASSWORD", "XmppPasswordHash", string.Empty);
-			string PasswordHashMethod = await EnvironmentSettings.GetAsync("XMPP_PASSWORDHASHMETHOD", "XmppPasswordHashMethod", string.Empty);
-			string ApiKey = await EnvironmentSettings.GetAsync("XMPP_APIKEY", "XmppApiKey", string.Empty);
-			string ApiSecret = await EnvironmentSettings.GetAsync("XMPP_APISECRET", "XmppApiSecret", string.Empty);
+			string XmppHost = await EnvironmentSettings.GetAsync("XMPP_HOST", "XmppHost", "lab.tagroot.io");
+			int XmppPort = (int)await EnvironmentSettings.GetAsync("XMPP_PORT", "XmppPort", 5222);
+			string XmppUserName = await EnvironmentSettings.GetAsync("XMPP_USERNAME", "XmppUserName", string.Empty);
+			string XmppPasswordHash = await EnvironmentSettings.GetAsync("XMPP_PASSWORD", "XmppPasswordHash", string.Empty);
+			string XmppPasswordHashMethod = await EnvironmentSettings.GetAsync("XMPP_PASSWORDHASHMETHOD", "XmppPasswordHashMethod", string.Empty);
+			string XmppApiKey = await EnvironmentSettings.GetAsync("XMPP_APIKEY", "XmppApiKey", string.Empty);
+			string XmppApiSecret = await EnvironmentSettings.GetAsync("XMPP_APISECRET", "XmppApiSecret", string.Empty);
 			bool Updated = false;
 
 			while (true)
 			{
-				if (!string.IsNullOrEmpty(Host) && !string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(PasswordHash))
+				if (!string.IsNullOrEmpty(XmppHost) && !string.IsNullOrEmpty(XmppUserName) && !string.IsNullOrEmpty(XmppPasswordHash))
 				{
 					try
 					{
 						SafeDispose(ref xmppClient);
 
-						if (string.IsNullOrEmpty(PasswordHashMethod))
-							xmppClient = new XmppClient(Host, Port, UserName, PasswordHash, "en", typeof(Program).GetTypeInfo().Assembly);
+						if (string.IsNullOrEmpty(XmppPasswordHashMethod))
+							xmppClient = new XmppClient(XmppHost, XmppPort, XmppUserName, XmppPasswordHash, "en", typeof(Program).GetTypeInfo().Assembly);
 						else
-							xmppClient = new XmppClient(Host, Port, UserName, PasswordHash, PasswordHashMethod, "en", typeof(Program).GetTypeInfo().Assembly);
+							xmppClient = new XmppClient(XmppHost, XmppPort, XmppUserName, XmppPasswordHash, XmppPasswordHashMethod, "en", typeof(Program).GetTypeInfo().Assembly);
 
 						xmppClient.AllowCramMD5 = false;
 						xmppClient.AllowDigestMD5 = false;
@@ -141,10 +143,10 @@ internal class Program
 						xmppClient.AllowScramSHA1 = true;
 						xmppClient.AllowScramSHA256 = true;
 
-						if (string.IsNullOrEmpty(ApiKey) || string.IsNullOrEmpty(ApiSecret))
+						if (string.IsNullOrEmpty(XmppApiKey) || string.IsNullOrEmpty(XmppApiSecret))
 							xmppClient.AllowRegistration();
 						else
-							xmppClient.AllowRegistration(ApiKey, ApiSecret);
+							xmppClient.AllowRegistration(XmppApiKey, XmppApiSecret);
 
 						xmppClient.OnStateChanged += (sender, State) =>
 						{
@@ -162,7 +164,7 @@ internal class Program
 
 						xmppClient.OnConnectionError += (sender, ex) =>
 						{
-							Log.Error(ex.Message);
+							Log.Error(ex);
 							return Task.CompletedTask;
 						};
 
@@ -184,11 +186,11 @@ internal class Program
 
 						if (Updated)
 						{
-							await RuntimeSettings.SetAsync("XmppHost", Host = xmppClient.Host);
-							await RuntimeSettings.SetAsync("XmppPort", Port = xmppClient.Port);
-							await RuntimeSettings.SetAsync("XmppUserName", UserName = xmppClient.UserName);
-							await RuntimeSettings.SetAsync("XmppPasswordHash", PasswordHash = xmppClient.PasswordHash);
-							await RuntimeSettings.SetAsync("XmppPasswordHashMethod", PasswordHashMethod = xmppClient.PasswordHashMethod);
+							await RuntimeSettings.SetAsync("XmppHost", XmppHost = xmppClient.Host);
+							await RuntimeSettings.SetAsync("XmppPort", XmppPort = xmppClient.Port);
+							await RuntimeSettings.SetAsync("XmppUserName", XmppUserName = xmppClient.UserName);
+							await RuntimeSettings.SetAsync("XmppPasswordHash", XmppPasswordHash = xmppClient.PasswordHash);
+							await RuntimeSettings.SetAsync("XmppPasswordHashMethod", XmppPasswordHashMethod = xmppClient.PasswordHashMethod);
 
 							// Note: Do not store API Key and API Secret
 						}
@@ -201,22 +203,22 @@ internal class Program
 					}
 				}
 
-				Host = InputString("XMPP Broker", Host);
-				Port = InputString("Port", Port);
-				UserName = InputString("User Name", UserName);
-				PasswordHash = InputString("Password", "Leave blank to randomize password.", PasswordHash);
-				if (string.IsNullOrEmpty(PasswordHash))
+				XmppHost = InputString("XMPP Broker", XmppHost);
+				XmppPort = InputString("Port", XmppPort);
+				XmppUserName = InputString("User Name", XmppUserName);
+				XmppPasswordHash = InputString("Password", "Leave blank to randomize password.", XmppPasswordHash);
+				if (string.IsNullOrEmpty(XmppPasswordHash))
 				{
 					using RandomNumberGenerator Rnd = RandomNumberGenerator.Create();
 					byte[] Bin = new byte[32];  // 256 random bits
 
 					Rnd.GetBytes(Bin);
-					PasswordHash = Hashes.BinaryToString(Bin);
+					XmppPasswordHash = Hashes.BinaryToString(Bin);
 				}
 
-				PasswordHashMethod = string.Empty;
-				ApiKey = InputString("API Key", "Provide API Key to create account.", ApiKey);
-				ApiSecret = InputString("API Secret", "Provide API Secret to create account.", ApiSecret);
+				XmppPasswordHashMethod = string.Empty;
+				XmppApiKey = InputString("API Key", "Provide API Key to create account.", XmppApiKey);
+				XmppApiSecret = InputString("API Secret", "Provide API Secret to create account.", XmppApiSecret);
 				Updated = true;
 			}
 
@@ -245,6 +247,124 @@ internal class Program
 			};
 
 			RegisterVCard();
+
+			#endregion
+
+			#region MQTT Connection
+
+			bool MqttBrokerFound = false;
+
+			foreach (INode Node in await MeteringTopology.Root.ChildNodes)
+			{
+				if (Node is MqttBrokerNode)
+				{
+					MqttBrokerFound = true;
+					break;
+				}
+			}
+
+			if (!MqttBrokerFound)
+			{
+				string MqttHost = await EnvironmentSettings.GetAsync("MQTT_HOST", "MqttHost", "test.mosquitto.org");
+				bool MqttTls = await EnvironmentSettings.GetAsync("MQTT_TLS", "MqttTls", true);
+				int MqttPort = (int)await EnvironmentSettings.GetAsync("MQTT_PORT", "MqttPort", MqttTls ? 8883 : 1883);
+				string MqttUserName = await EnvironmentSettings.GetAsync("MQTT_USERNAME", "MqttUserName", string.Empty);
+				string MqttPassword = await EnvironmentSettings.GetAsync("MQTT_PASSWORD", "MqttPassword", string.Empty);
+				MqttClient? MqttClient = null;
+				Updated = false;
+
+				while (true)
+				{
+					if (!string.IsNullOrEmpty(MqttHost))
+					{
+						try
+						{
+							SafeDispose(ref MqttClient);
+
+							Log.Informational("Connecting to " + MqttHost + ":" + MqttPort.ToString());
+
+							TaskCompletionSource<bool> ConnectionResult = new();
+
+							MqttClient = new MqttClient(MqttHost, MqttPort, MqttTls, MqttUserName, MqttPassword);
+							MqttClient.OnStateChanged += (_, NewState) =>
+							{
+								Log.Informational("Changing state: " + NewState.ToString());
+
+								switch (NewState)
+								{
+									case MqttState.Offline:
+										ConnectionResult.TrySetException(new Exception("Unable to connect to host. Please revise parameters and try again."));
+										break;
+
+									case MqttState.Error:
+										ConnectionResult.TrySetException(new Exception("An error occurred when trying to connect. Please revise parameters and try again."));
+										break;
+
+									case MqttState.Connected:
+										ConnectionResult.TrySetResult(true);
+										break;
+								}
+
+								return Task.CompletedTask;
+							};
+
+							MqttClient.OnConnectionError += (_, ex) =>
+							{
+								Log.Error(ex);
+								return Task.CompletedTask;
+							};
+
+							_ = Task.Delay(10000).ContinueWith((_) => ConnectionResult.TrySetException(new TimeoutException()));
+
+							await ConnectionResult.Task;
+
+							SafeDispose(ref MqttClient);
+
+							if (Updated)
+							{
+								await RuntimeSettings.SetAsync("MqttHost", MqttHost);
+								await RuntimeSettings.SetAsync("MqttPort", MqttPort);
+								await RuntimeSettings.SetAsync("MqttTls", MqttTls);
+								await RuntimeSettings.SetAsync("MqttUserName", MqttUserName);
+								await RuntimeSettings.SetAsync("MqttPasswordHash", MqttPassword);
+							}
+
+							break;
+						}
+						catch (Exception ex)
+						{
+							Log.Error("Unable to connect to MQTT Network. The following error was reported:\r\n\r\n" + ex.Message);
+						}
+					}
+
+					MqttHost = InputString("MQTT Broker", MqttHost);
+
+					if ((MqttTls && MqttPort == 8883) || (!MqttTls && MqttPort == 1883))
+						MqttPort = 0;
+
+					MqttTls = InputString("MQTT Encryption", MqttTls);
+
+					if (MqttPort == 0)
+						MqttPort = MqttTls ? 8883 : 1883;
+
+					MqttPort = InputString("Port", MqttPort);
+					MqttUserName = InputString("User Name", MqttUserName);
+					MqttPassword = InputString("Password", MqttPassword);
+					Updated = true;
+				}
+
+				MqttBrokerNode MqttNode = new()
+				{
+					NodeId = await MeteringNode.GetUniqueNodeId(MqttHost),
+					Host = MqttHost,
+					Port = MqttPort,
+					Tls = MqttTls,
+					UserName = MqttUserName,
+					Password = MqttPassword
+				};
+
+				await MeteringTopology.Root.AddAsync(MqttNode);
+			}
 
 			#endregion
 
@@ -399,6 +519,23 @@ internal class Program
 				return Result;
 
 			Log.Error("Input must be an integer.");
+		}
+	}
+
+	private static bool InputString(string Prompt, bool DefaultValue)
+	{
+		return InputString(Prompt, string.Empty, DefaultValue);
+	}
+
+	private static bool InputString(string Prompt, string Comment, bool DefaultValue)
+	{
+		while (true)
+		{
+			string s = InputString(Prompt, Comment, DefaultValue.ToString());
+			if (CommonTypes.TryParse(s, out bool Result))
+				return Result;
+
+			Log.Error("Input must be a Boolean value.");
 		}
 	}
 

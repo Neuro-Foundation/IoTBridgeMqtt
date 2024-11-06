@@ -32,6 +32,11 @@ to input the value on the console.
 | `XMPP_PASSWORDHASHMETHOD`	| String  | Algorithm or method used for password. Empty string means the password is provided in the clear.                      |
 | `XMPP_APIKEY`				| String  | API Key. If provided together with secret, allows the application to create a new account.                            |
 | `XMPP_APISECRET`			| String  | API Secret. If provided together with key, allows the application to create a new account.                            |
+| `MQTT_HOST`               | String  | MQTT Host name														                                                  |
+| `MQTT_TLS`                | String  | If TLS encryption is to be used when connecting to the MQTT broker.	                                                  |
+| `MQTT_PORT`               | String  | Port number to use when connecting to MQTT (default is `1883` for unencrypted MQTT and 8883 for encrypted MQTT).      |
+| `MQTT_USERNAME`           | String  | User name to use when connecting to MQTT. Can be empty if no user credentials are provided.                           |
+| `MQTT_PASSWORD`           | String  | Password to use when connecting to XMPP. Can be empty if no user credentials are provided.                            |
 | `REGISTRY_COUNTRY`		| String  | Country where the bridge is installed.                                                                                |
 | `REGISTRY_REGION`			| String  | Region where the bridge is installed.                                                                                 |
 | `REGISTRY_CITY`			| String  | City where the bridge is installed.                                                                                   |
