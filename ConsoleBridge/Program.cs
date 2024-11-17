@@ -169,7 +169,7 @@ internal class Program
 						};
 
 						Log.Informational("Connecting to " + xmppClient.Host + ":" + xmppClient.Port.ToString());
-						xmppClient.Connect();
+						await xmppClient.Connect();
 
 						switch (await xmppClient.WaitStateAsync(10000, XmppState.Connected, XmppState.Error, XmppState.Offline))
 						{
@@ -232,7 +232,11 @@ internal class Program
 				return Task.CompletedTask;
 			};
 
-			xmppClient.OnPasswordChanged += (Sender, e) => Log.Informational("Password changed.", xmppClient.BareJID);
+			xmppClient.OnPasswordChanged += (Sender, e) =>
+			{
+				Log.Informational("Password changed.", xmppClient.BareJID);
+				return Task.CompletedTask;
+			};
 
 			xmppClient.OnPresenceSubscribed += (Sender, e) =>
 			{
@@ -411,6 +415,7 @@ internal class Program
 				provisioningClient.CacheCleared += (sender, e) =>
 				{
 					Log.Informational("Rule cache cleared.");
+					return Task.CompletedTask;
 				};
 			}
 
@@ -456,7 +461,7 @@ internal class Program
 
 			#endregion
 
-			SetupConcentratorServer();
+			await SetupConcentratorServer();
 			SetupChatServer();
 
 			bool Running = true;
@@ -908,11 +913,11 @@ internal class Program
 
 	#region Concentrator
 
-	private static void SetupConcentratorServer()
+	private static async Task SetupConcentratorServer()
 	{
 		SafeDispose(ref concentratorServer);
-
-		concentratorServer = new ConcentratorServer(xmppClient, registryClient, provisioningClient, new MeteringTopology());
+		
+		concentratorServer = await ConcentratorServer.Create(xmppClient, registryClient, provisioningClient, new MeteringTopology());
 	}
 
 	#endregion
