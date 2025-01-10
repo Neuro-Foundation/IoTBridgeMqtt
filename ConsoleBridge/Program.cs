@@ -488,7 +488,7 @@ internal class Program
 			SafeDispose(ref concentratorServer);
 			SafeDispose(ref xmppClient);
 
-			Log.Terminate();
+			await Log.TerminateAsync();
 
 			await Types.StopAllModules();
 		}
