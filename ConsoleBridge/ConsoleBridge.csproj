@@ -39,14 +39,14 @@
     <PackageReference Include="Waher.Runtime.Settings" Version="1.2.0" />
     <PackageReference Include="Waher.Script" Version="2.11.2" />
     <PackageReference Include="Waher.Security" Version="1.0.13" />
-    <PackageReference Include="Waher.Things" Version="3.2.1" />
-    <PackageReference Include="Waher.Things.Ieee1451" Version="2.1.1" />
-    <PackageReference Include="Waher.Things.Ip" Version="2.2.0" />
-    <PackageReference Include="Waher.Things.Metering" Version="2.1.3" />
-    <PackageReference Include="Waher.Things.Mqtt" Version="2.1.2" />
-    <PackageReference Include="Waher.Things.Script" Version="2.2.0" />
-    <PackageReference Include="Waher.Things.Virtual" Version="2.1.0" />
-    <PackageReference Include="Waher.Things.Xmpp" Version="2.1.1" />
+    <PackageReference Include="Waher.Things" Version="3.2.2" />
+    <PackageReference Include="Waher.Things.Ieee1451" Version="2.1.2" />
+    <PackageReference Include="Waher.Things.Ip" Version="2.2.1" />
+    <PackageReference Include="Waher.Things.Metering" Version="2.1.4" />
+    <PackageReference Include="Waher.Things.Mqtt" Version="2.1.3" />
+    <PackageReference Include="Waher.Things.Script" Version="2.2.1" />
+    <PackageReference Include="Waher.Things.Virtual" Version="2.1.1" />
+    <PackageReference Include="Waher.Things.Xmpp" Version="2.1.2" />
   </ItemGroup>
 
 </Project>
