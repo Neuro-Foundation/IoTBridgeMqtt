@@ -330,7 +330,6 @@ COPY [ \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Runtime.Settings.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Runtime.Temporary.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Runtime.Text.dll", \
-	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.IoTGateway.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Runtime.Threading.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Runtime.Timing.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Script.dll", \
@@ -355,10 +354,6 @@ COPY [ \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Things.Xmpp.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/WindowsBase.dll", \
 	"/opt/IoTGateway/"]
-
-RUN ["cp", "-ru", "/var/lib/temp/.", "/var/lib/IoT Gateway"]
-
-RUN ["rm", "-rf", "/var/lib/temp/"]
 
 RUN ["chmod", "+x", "/opt/IoTGateway/ConsoleBridge"]
 

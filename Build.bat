@@ -8,8 +8,8 @@ if errorlevel 1 goto Error
 "C:\My Projects\IoTGateway\Utilities\Waher.Utility.Install\bin\Release\PublishOutput\win-x86\Waher.Utility.Install.exe" ^
 	-dk IoTBridgeMqtt.Dockerfile ^
 	-d "/var/lib/IoT Gateway" ^
-	-a "/var/lib/temp/" ^
-	-s "/opt/IoTGateway/IoTBridgeMqtt" ^
+	-a "/var/lib/IoT Gateway" ^
+	-s "/opt/IoTGateway/ConsoleBridge" ^
 	-m ConsoleBridge\bin\Release\PublishOutputLinux\linux-x64\ConsoleBridge.manifest
 
 docker build -f IoTBridgeMqtt.Dockerfile -t iot-bridge-mqtt:latest .
@@ -20,4 +20,4 @@ goto Done
 
 :Done
 
-call bell.bat
+echo 
