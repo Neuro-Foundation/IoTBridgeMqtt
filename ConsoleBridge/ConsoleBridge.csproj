@@ -10,6 +10,13 @@
 
   <ItemGroup>
     <None Remove="Assets\Icon.png" />
+    <None Remove="ConsoleBridge.manifest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ConsoleBridge.manifest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

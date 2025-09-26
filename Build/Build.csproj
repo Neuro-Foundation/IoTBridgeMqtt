@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Configuration>Release</Configuration>
+		<RuntimeFrameworkVersion>8.0</RuntimeFrameworkVersion>
+		<RuntimeIdentifiers>win-x86</RuntimeIdentifiers>
+		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+	</PropertyGroup>
+
+	<Target Name="BuildSetup">
+		<!-- Building projects -->
+		<MSBuild Projects="..\ConsoleBridge\ConsoleBridge.csproj" Targets="Build"
+						 Properties="Configuration=$(Configuration);SolutionDir=$(MSBuildThisFileDirectory)..\"/>
+
+		<!-- Publishing Windows executables -->
+		<Exec Command="dotnet publish -o:&quot;..\ConsoleBridge\bin\$(Configuration)\PublishOutput\win-x86&quot; -r win-x86 -c:$(Configuration) --self-contained:true &quot;..\ConsoleBridge\ConsoleBridge.csproj&quot;"/>
+
+		<!-- Publishing Linux executables -->
+
+		<Exec Command="dotnet publish -o:&quot;..\ConsoleBridge\bin\$(Configuration)\PublishOutputLinux\linux-x64&quot; -r linux-x64 -c:$(Configuration) --self-contained:true &quot;..\ConsoleBridge\ConsoleBridge.csproj&quot;"/>
+	</Target>
+
+</Project>
