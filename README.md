@@ -49,6 +49,16 @@ to input the value on the console.
 | `REGISTRY_NAME`			| String  | Name associated with bridge.                                                                                          |
 | `REGISTRY_LOCATION`		| Boolean | If location has been completed. (This means, any location-specific environment variables not provided, will be interpreted as intensionally left blank, and user will not be prompted to input values for them. |
 
+### Running in a Docker container
+
+You can run the bridge in a Docker container. When doing so it is important to either configure all
+settings via the environment variables, or to redirect `stdin` and allocate a `TTY`. You do this
+using the `-it` switch to `docker run`. For example:
+
+```bash
+docker run -it iot-bridge-mqtt
+```
+
 Claiming ownership of bridge
 -------------------------------
 
