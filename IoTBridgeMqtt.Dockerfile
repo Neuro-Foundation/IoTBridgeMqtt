@@ -362,5 +362,5 @@ RUN ["rm", "-rf", "/var/lib/temp/"]
 
 RUN ["chmod", "+x", "/opt/IoTGateway/ConsoleBridge"]
 
-ENTRYPOINT ["/opt/IoTGateway/IoTBridgeMqtt"]
+ENTRYPOINT ["/opt/IoTGateway/ConsoleBridge"]
 
