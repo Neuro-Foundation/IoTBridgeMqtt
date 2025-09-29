@@ -296,6 +296,7 @@ COPY [ \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Content.Xsl.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Events.Console.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Events.dll", \
+	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Events.Filter.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Events.Statistics.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Events.XMPP.dll", \
 	"ConsoleBridge/bin/Release/PublishOutputLinux/linux-x64/Waher.Networking.dll", \

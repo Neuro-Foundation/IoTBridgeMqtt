@@ -198,6 +198,7 @@
 	<Assembly fileName="Waher.Content.Xsl.dll"/>
 	<Assembly fileName="Waher.Events.Console.dll"/>
 	<Assembly fileName="Waher.Events.dll"/>
+	<Assembly fileName="Waher.Events.Filter.dll"/>
 	<Assembly fileName="Waher.Events.Statistics.dll"/>
 	<Assembly fileName="Waher.Events.XMPP.dll"/>
 	<Assembly fileName="Waher.Networking.dll"/>

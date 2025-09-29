@@ -12,6 +12,8 @@ using Waher.Content.QR.Encoding;
 using Waher.Content.Xml;
 using Waher.Events;
 using Waher.Events.Console;
+using Waher.Events.Filter;
+using Waher.Events.XMPP;
 using Waher.Networking.MQTT;
 using Waher.Networking.XMPP;
 using Waher.Networking.XMPP.BitsOfBinary;
@@ -46,6 +48,7 @@ internal class Program
 	private static string deviceId = string.Empty;
 	private static string thingRegistryJid = string.Empty;
 	private static string provisioningJid = string.Empty;
+	private static string logJid = string.Empty;
 	private static string ownerJid = string.Empty;
 	private static string appDataFolder = string.Empty;
 	private static ConcentratorServer? concentratorServer = null;
@@ -397,9 +400,12 @@ internal class Program
 
 			thingRegistryJid = await RuntimeSettings.GetAsync("ThingRegistry.JID", string.Empty);
 			provisioningJid = await RuntimeSettings.GetAsync("ProvisioningServer.JID", thingRegistryJid);
+			logJid = await RuntimeSettings.GetAsync("EventServer.JID", string.Empty);
 			ownerJid = await RuntimeSettings.GetAsync("ThingRegistry.Owner", string.Empty);
 
-			if (string.IsNullOrEmpty(thingRegistryJid) || string.IsNullOrEmpty(provisioningJid))
+			if (string.IsNullOrEmpty(thingRegistryJid) || 
+				string.IsNullOrEmpty(provisioningJid) ||
+				string.IsNullOrEmpty(logJid))
 			{
 				Log.Informational("Searching for Thing Registry and Provisioning Server.");
 
@@ -421,12 +427,25 @@ internal class Program
 							await RuntimeSettings.SetAsync("ThingRegistry.JID", thingRegistryJid = Item.JID);
 							Log.Informational("Thing registry found.", thingRegistryJid);
 						}
+
+						if (e2.HasAnyFeature(XmppEventSink.NamespaceEventLogging))
+						{
+							await RuntimeSettings.SetAsync("EventServer.JID", logJid = Item.JID);
+							Log.Informational("Event Server found.", logJid);
+						}
 					}
 					catch (Exception ex)
 					{
 						Log.Exception(ex);
 					}
 				}
+			}
+
+			if (!string.IsNullOrEmpty(logJid))
+			{
+				Log.Register(new EventFilter("XMPP Event Filter",
+					new XmppEventSink("XMPP Event Sink", xmppClient, logJid, false),
+					EventType.Critical));
 			}
 
 			if (!string.IsNullOrEmpty(provisioningJid))
