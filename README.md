@@ -59,6 +59,12 @@ using the `-it` switch to `docker run`. For example:
 docker run -it iot-bridge-mqtt
 ```
 
+#### Setting up persistent storage
+
+Persistent storage is required to store configuration, as well as data about the bridge, its nodes,
+and ownerships, etc. You can do this by mapping the local folder `/var/lib/IoT Gateway` to a Volume
+when creating the container.
+
 Claiming ownership of bridge
 -------------------------------
 
