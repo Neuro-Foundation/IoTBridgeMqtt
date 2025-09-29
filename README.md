@@ -65,6 +65,20 @@ Persistent storage is required to store configuration, as well as data about the
 and ownerships, etc. You can do this by mapping the local folder `/var/lib/IoT Gateway` to a Volume
 when creating the container.
 
+#### Using an environment file
+
+You can provide environment variables using an environment file. Create a new text file based on the
+`IoTBridgeMqtt.env` file in the repository. Set the values you want to provide, and then use the
+`--env-file` switch when creating the container. For example:
+
+```bash
+docker run -it --env-file IoTBridgeMqtt.env -v /my/local/folder:/var/lib/IoT\ Gateway iot-bridge-mqtt
+```
+
+**Note**: If providing credentials, make sure the file is not accessible by others, and make sure it
+is not checked in to any repository. An alternative to providing credentials in an environment file, 
+is to enable standard and terminal input, and provide it via the prompt (see above).
+
 Claiming ownership of bridge
 -------------------------------
 
