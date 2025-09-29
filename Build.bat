@@ -7,6 +7,7 @@ if errorlevel 1 goto Error
 
 "C:\My Projects\IoTGateway\Utilities\Waher.Utility.Install\bin\Release\PublishOutput\win-x86\Waher.Utility.Install.exe" ^
 	-dk IoTBridgeMqtt.Dockerfile ^
+	-de IoTBridgeMqtt.env ^
 	-d "/var/lib/IoT Gateway" ^
 	-a "/var/lib/IoT Gateway" ^
 	-s "/opt/IoTGateway/ConsoleBridge" ^

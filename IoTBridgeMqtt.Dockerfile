@@ -53,7 +53,7 @@ LABEL env.MQTT_PASSWORD="Password of account. If creating an account, this varia
 
 ARG REGISTRY_LOCATION
 ENV REGISTRY_LOCATION=""
-LABEL env.REGISTRY_LOCATION=""
+LABEL env.REGISTRY_LOCATION="'true' or '1' if bridge has a location, 'false' or '0' if the bridge does not have a location."
 
 ARG REGISTRY_COUNTRY
 ENV REGISTRY_COUNTRY=""

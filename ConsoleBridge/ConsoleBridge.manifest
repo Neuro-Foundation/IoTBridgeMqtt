@@ -270,7 +270,7 @@
 	<Variable name="MQTT_PORT" default="8883" label="Optional Port number to use when connecting to host."/>
 	<Variable name="MQTT_USERNAME" default="" label="Name of account."/>
 	<Variable name="MQTT_PASSWORD" default="" label="Password of account. If creating an account, this variable is optional. If not available, a secure password will be generated."/>
-	<Variable name="REGISTRY_LOCATION" default="" label=""/>
+	<Variable name="REGISTRY_LOCATION" default="" label="'true' or '1' if bridge has a location, 'false' or '0' if the bridge does not have a location."/>
 	<Variable name="REGISTRY_COUNTRY" default="" label="Country to register in Thing Registry."/>
 	<Variable name="REGISTRY_REGION" default="" label="Region to register in Thing Registry."/>
 	<Variable name="REGISTRY_CITY" default="" label="City to register in Thing Registry."/>
