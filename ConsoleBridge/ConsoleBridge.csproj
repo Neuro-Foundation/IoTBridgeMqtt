@@ -34,7 +34,7 @@
     <PackageReference Include="Waher.Networking.XMPP" Version="4.2.3" />
     <PackageReference Include="Waher.Networking.XMPP.Chat" Version="3.2.0" />
     <PackageReference Include="Waher.Networking.XMPP.Concentrator" Version="4.2.3" />
-    <PackageReference Include="Waher.Networking.XMPP.Contracts" Version="4.8.0" />
+    <PackageReference Include="Waher.Networking.XMPP.Contracts" Version="4.9.2" />
     <PackageReference Include="Waher.Networking.XMPP.Control" Version="4.1.2" />
     <PackageReference Include="Waher.Networking.XMPP.P2P" Version="4.2.2" />
     <PackageReference Include="Waher.Networking.XMPP.PEP" Version="3.1.1" />
@@ -47,7 +47,7 @@
     <PackageReference Include="Waher.Runtime.Settings" Version="1.2.0" />
     <PackageReference Include="Waher.Script" Version="2.13.3" />
     <PackageReference Include="Waher.Security" Version="1.0.13" />
-    <PackageReference Include="Waher.Things" Version="3.2.3" />
+    <PackageReference Include="Waher.Things" Version="3.2.4" />
     <PackageReference Include="Waher.Things.Ieee1451" Version="2.1.2" />
     <PackageReference Include="Waher.Things.Ip" Version="2.2.2" />
     <PackageReference Include="Waher.Things.Metering" Version="2.1.4" />
